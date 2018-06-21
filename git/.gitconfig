@@ -1,0 +1,18 @@
+[user]
+	name = Pedro Boueke
+	email = phboueke@gmail.com
+
+[alias]
+	dc = diff --cached
+	ls = log --pretty=format:'%C(yellow)%h%C(white) %an <%ae> %>|(80)%ai%Creset%n%C(bold)%w(0,4,4)%s%C(reset)%n%+b'
+	st = status
+	xl = log --graph --decorate --all # [--oneline]
+	cp = cherry-pick
+	st = status -s
+	cl = clone
+	ci = commit
+	co = checkout
+	br = branch 
+	diff = diff --word-diff
+	dc = diff --cached
+	la = "!git config -l | grep alias | cut -c 7-"
