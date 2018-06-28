@@ -7,6 +7,8 @@
 	ls = log --pretty=format:'%C(yellow)%h%C(white) %an <%ae> %>|(80)%ai%Creset%n%C(bold)%w(0,4,4)%s%C(reset)%n%+b'
 	st = status
 	xl = log --graph --decorate --all # [--oneline]
+	t1 = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+	t2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
 	cp = cherry-pick
 	st = status -s
 	cl = clone
