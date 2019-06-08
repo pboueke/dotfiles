@@ -587,6 +587,22 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
+"*****************************************************************************                               
+"" save folding                                                                                      
+"***************************************************************************** 
+
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview
+
+"*****************************************************************************                               
+"" pathoen https://github.com/tpope/vim-pathogen                                            
+"***************************************************************************** 
+
+execute pathogen#infect()
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
 "*****************************************************************************
 "" Convenience variables
 "*****************************************************************************
