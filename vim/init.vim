@@ -71,7 +71,7 @@ endfunction
 augroup vimSessions
     autocmd!
     " Adding automatons for when entering or leaving Vim
-    au VimEnter * nested :call LoadSession()
+    "au VimEnter * nested :call LoadSession()
    au VimLeave * :call MakeSession()
 augroup END
 

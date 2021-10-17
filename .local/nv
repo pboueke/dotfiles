@@ -1,0 +1,12 @@
+#!/bin/bash
+if [[ -z {$@} ]]
+then
+  neovide --multigrid
+else
+  prefix="-- "
+  string="$@"
+  filepath=${string#$prefix}
+  echo $filepath
+  neovide $filepath --multigrid
+fi
+
