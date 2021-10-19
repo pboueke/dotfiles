@@ -15,6 +15,7 @@ Plug 'alvan/vim-closetag'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'haystackandroid/carbonized'
+Plug 'dikiaap/minimalist'
 Plug 'preservim/nerdtree' |
             \ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'vim-syntastic/syntastic'
@@ -23,18 +24,21 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'vim-airline/vim-airline'
 Plug 'eslint/eslint'
 Plug 'Yggdroot/indentLine'
-Plug 'vim-gitgutter'
+"Plug 'vim-gitgutter'
 Plug 'liuchengxu/vim-clap'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'yarn install',
+  \ 'branch': 'release/0.x'
+  \ }
 
 call plug#end()
 
-colorscheme carbonized-dark
+colorscheme minimalist
 
 let g:clap_theme = 'material_design_dark'
 
@@ -46,6 +50,8 @@ let g:rainbow_active = 1
 
 let g:neovide_cursor_vfx_mode = "railgun"
 let g:neovide_cursor_animation_length=0.13
+
+set guifont=Monoid:h10
 
 function! MakeSession()
     let b:sessiondir = $HOME . "/.config/nvim/sessions" . getcwd()
@@ -72,7 +78,7 @@ augroup vimSessions
     autocmd!
     " Adding automatons for when entering or leaving Vim
     "au VimEnter * nested :call LoadSession()
-   au VimLeave * :call MakeSession()
+   "au VimLeave * :call MakeSession()
 augroup END
 
 augroup markdownSpell
@@ -156,11 +162,11 @@ augroup numbertoggle
 augroup END
 
 " Prettier - to enable format on save
-let g:prettier#autoformat = 0
-augroup prettier
-    autocmd!
-    autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html PrettierAsync
-augroup END
+"let g:prettier#autoformat = 0
+"augroup prettier
+"    autocmd!
+"    autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html PrettierAsync
+"augroup END
 
 
 
@@ -287,10 +293,11 @@ set guifont=Your\ Font\ Name:h15
 " Set matching bracket for 1 second
 set mat=1
 " Cursor line but only current window and not when inserting text
-set cursorline
-autocmd InsertLeave,WinEnter * set cursorline
-autocmd InsertEnter,WinLeave * set nocursorline
-
+"set cursorline
+autocmd BufEnter * set cursorline
+autocmd BufLeave * set nocursorline
+"autocmd InsertLeave,WinEnter * set cursorline
+"autocmd InsertEnter,WinLeave * set nocursorline
 " Get a preview of replacements
 set inccommand=split
 
