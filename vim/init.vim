@@ -14,20 +14,26 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'alvan/vim-closetag'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
+Plug 'vimwiki/vimwiki'
+Plug 'mattn/calendar-vim'
+Plug 'morhetz/gruvbox'
 Plug 'haystackandroid/carbonized'
 Plug 'dikiaap/minimalist'
-Plug 'preservim/nerdtree' |
+Plug 'preservim/nerdtree'|
             \ Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'elixir-editors/vim-elixir'
 Plug 'vim-syntastic/syntastic'
 Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'amiralies/coc-elixir', {'do': 'yarn install && yarn prepack'}
+Plug 'neoclide/coc-python'
 Plug 'vim-airline/vim-airline'
 Plug 'eslint/eslint'
 Plug 'Yggdroot/indentLine'
 "Plug 'vim-gitgutter'
 Plug 'liuchengxu/vim-clap'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
+"Plug 'nvim-telescope/telescope.nvim'
 Plug 'luochen1990/rainbow'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -35,10 +41,15 @@ Plug 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
   \ 'branch': 'release/0.x'
   \ }
+Plug 'yuezk/vim-js'
+Plug 'maxmellon/vim-jsx-pretty'
+Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 
 call plug#end()
 
-colorscheme minimalist
+colorscheme gruvbox
+
+let g:ale_fixers = { 'elixir': ['mix_format'] }
 
 let g:clap_theme = 'material_design_dark'
 
@@ -51,7 +62,7 @@ let g:rainbow_active = 1
 let g:neovide_cursor_vfx_mode = "railgun"
 let g:neovide_cursor_animation_length=0.13
 
-set guifont=Monoid:h10
+set guifont=Monoid:h8
 
 function! MakeSession()
     let b:sessiondir = $HOME . "/.config/nvim/sessions" . getcwd()
@@ -225,7 +236,7 @@ let g:compe.source.vsnip = v:true
 let g:compe.source.ultisnips = v:true
 
 inoremap <silent><expr> <C-Space> compe#complete()
-inoremap <silent><expr> <CR>      compe#confirm('<CR>')
+"inoremap <silent><expr> <CR>      compe#confirm('<CR>')
 inoremap <silent><expr> <C-e>     compe#close('<C-e>')
 inoremap <silent><expr> <C-f>     compe#scroll({ 'delta': +4 })
 inoremap <silent><expr> <C-d>     compe#scroll({ 'delta': -4 })
@@ -316,6 +327,7 @@ set list
 set listchars+=tab:▶‒,space:.,eol:↲,nbsp:␣,trail:•
 hi NonText ctermfg=16 guifg=#3d3d3d
 hi SpecialKey ctermfg=16 guifg=#3d3d3d
+hi Comment guifg=#00FFFF
 set display+=lastline
 set clipboard=unnamedplus
 set mouse=
