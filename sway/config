@@ -1,0 +1,207 @@
+# Sway config — i3-compatible drop-in replacement
+# man 5 sway for full reference
+
+### Variables ─────────────────────────────────────────────────────────────────
+
+set $mod Mod4
+
+# Vim-style home-row directions
+set $left  h
+set $down  j
+set $up    k
+set $right l
+
+set $term foot
+set $menu wofi --show drun
+
+### Output ────────────────────────────────────────────────────────────────────
+
+# Solid-colour background (replace with: output * bg ~/path/to/wall.jpg fill)
+output * bg #1d2021 solid_color
+
+output HDMI-A-2 mode 2560x1440@60Hz
+
+### Idle / screen lock ────────────────────────────────────────────────────────
+
+exec swayidle -w \
+    timeout 300  'swaylock -f -c 000000' \
+    timeout 600  'swaymsg "output * dpms off"' \
+    resume       'swaymsg "output * dpms on"' \
+    before-sleep 'swaylock -f -c 000000'
+
+### Input ─────────────────────────────────────────────────────────────────────
+
+input type:keyboard {
+    xkb_layout "br"
+    xkb_variant "abnt2"
+    xkb_model "thinkpad"
+    # xkb_options caps:escape   # uncomment to remap CapsLock → Escape
+}
+
+# input type:touchpad {
+#     tap enabled
+#     natural_scroll enabled
+# }
+
+### Autostart ─────────────────────────────────────────────────────────────────
+
+exec mako                                          # notification daemon
+exec_always sh -c 'pkill -x waybar; waybar'        # status bar (restarts on reload)
+
+# Polkit authentication agent — enables privilege prompts for GUI apps
+exec /usr/libexec/polkit-gnome-authentication-agent-1
+
+# Export env vars so portals, D-Bus services, and systemd units can find sway
+exec systemctl --user import-environment \
+    DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd \
+    DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+
+### Core keybindings ──────────────────────────────────────────────────────────
+
+bindsym $mod+Return       exec $term
+bindsym $mod+Shift+q      kill
+bindsym $mod+d            exec wofi --show run
+bindsym $mod+Shift+d      exec $menu
+bindsym $mod+Shift+c      reload
+bindsym $mod+Shift+r      reload   # i3 compat (i3 uses this for restart)
+bindsym $mod+Shift+e      exec swaynag -t warning \
+    -m 'Exit sway?' -B 'Yes, exit' 'swaymsg exit'
+
+# Drag floating windows with $mod held
+floating_modifier $mod normal
+
+### Focus ─────────────────────────────────────────────────────────────────────
+
+bindsym $mod+$left   focus left
+bindsym $mod+$down   focus down
+bindsym $mod+$up     focus up
+bindsym $mod+$right  focus right
+bindsym $mod+Left    focus left
+bindsym $mod+Down    focus down
+bindsym $mod+Up      focus up
+bindsym $mod+Right   focus right
+
+### Move windows ──────────────────────────────────────────────────────────────
+
+bindsym $mod+Shift+$left   move left
+bindsym $mod+Shift+$down   move down
+bindsym $mod+Shift+$up     move up
+bindsym $mod+Shift+$right  move right
+bindsym $mod+Shift+Left    move left
+bindsym $mod+Shift+Down    move down
+bindsym $mod+Shift+Up      move up
+bindsym $mod+Shift+Right   move right
+
+### Workspaces ────────────────────────────────────────────────────────────────
+
+set $ws1  "1"
+set $ws2  "2"
+set $ws3  "3"
+set $ws4  "4"
+set $ws5  "5"
+set $ws6  "6"
+set $ws7  "7"
+set $ws8  "8"
+set $ws9  "9"
+set $ws10 "10"
+
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+### Layout ────────────────────────────────────────────────────────────────────
+
+# Note: $mod+h conflicts with vim-nav so splits use $mod+b / $mod+v
+bindsym $mod+b       splith
+bindsym $mod+v       splitv
+bindsym $mod+f       fullscreen toggle
+bindsym $mod+s       layout stacking
+bindsym $mod+w       layout tabbed
+bindsym $mod+e       layout toggle split
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space       focus mode_toggle
+bindsym $mod+a           focus parent
+
+### Scratchpad ────────────────────────────────────────────────────────────────
+
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus       scratchpad show
+
+### Resize mode ───────────────────────────────────────────────────────────────
+
+mode "resize" {
+    bindsym $left  resize shrink width  10px
+    bindsym $down  resize grow   height 10px
+    bindsym $up    resize shrink height 10px
+    bindsym $right resize grow   width  10px
+    bindsym Left   resize shrink width  10px
+    bindsym Down   resize grow   height 10px
+    bindsym Up     resize shrink height 10px
+    bindsym Right  resize grow   width  10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+### Media / function keys ─────────────────────────────────────────────────────
+
+bindsym XF86AudioRaiseVolume  exec wpctl set-volume @DEFAULT_AUDIO_SINK@   5%+ --limit 1.0
+bindsym XF86AudioLowerVolume  exec wpctl set-volume @DEFAULT_AUDIO_SINK@   5%-
+bindsym XF86AudioMute         exec wpctl set-mute   @DEFAULT_AUDIO_SINK@   toggle
+bindsym XF86AudioMicMute      exec wpctl set-mute   @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86MonBrightnessUp   exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86AudioPlay         exec playerctl play-pause
+bindsym XF86AudioNext         exec playerctl next
+bindsym XF86AudioPrev         exec playerctl previous
+
+### Screenshots (grim + slurp) ───────────────────────────────────────────────
+
+bindsym Print            exec grim \
+    ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
+bindsym $mod+Print       exec grim -g "$(slurp)" \
+    ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
+bindsym $mod+Shift+Print exec grim -g "$(slurp)" - | wl-copy
+
+### Appearance ────────────────────────────────────────────────────────────────
+
+default_border         pixel 2
+default_floating_border pixel 2
+font pango:monospace 10
+
+# Gaps (uncomment if you want spacing between windows, like i3-gaps)
+# gaps inner 6
+# gaps outer 4
+
+# i3 default colour scheme
+# class                 border  bg      text    indicator child_border
+client.focused          #4c7899 #285577 #ffffff #2e9ef4   #285577
+client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+client.background       #ffffff
+
+### XWayland ──────────────────────────────────────────────────────────────────
+
+# Enables running X11 apps unchanged via XWayland
+xwayland enable

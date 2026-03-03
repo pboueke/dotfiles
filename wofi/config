@@ -1,0 +1,13 @@
+width=480
+height=320
+prompt=Run:
+show=drun
+allow_markup=true
+allow_images=true
+image_size=24
+columns=1
+term=foot
+insensitive=true
+no_actions=true
+hide_scroll=true
+dynamic_lines=false
