@@ -6,6 +6,7 @@ Personal development environment configuration for Linux (Wayland / Sway).
 
 ```
 dotfiles/
+├── ansible/        # Ansible playbook for automated backup
 ├── foot/           # Terminal emulator (foot)
 ├── git/            # Git global configuration
 ├── nvim/           # Neovim (0.11+) Lua configuration
@@ -45,6 +46,47 @@ ln -sf "$PWD/foot"                   ~/.config/foot
 
 On first Neovim launch, [lazy.nvim](https://github.com/folke/lazy.nvim) will
 bootstrap itself and install all plugins automatically.
+
+---
+
+## Ansible
+
+**Directory:** `ansible/`
+
+Ansible playbooks for managing this dotfiles repository. Requires only `ansible-core` and `rsync` — no extra collections needed.
+
+```bash
+sudo apt install ansible rsync
+```
+
+### backup.yml
+
+Copies the current configuration from the system into this repository. Handles single files with `ansible.builtin.copy` and directories with `rsync` (preserving permissions, deleting removed files).
+
+**Usage:**
+
+```bash
+# Sync configs from system → repo (dry run friendly: inspect diff with git diff after)
+ansible-playbook ansible/backup.yml
+
+# Sync and automatically commit all changes with a timestamped message
+ansible-playbook ansible/backup.yml -e auto_commit=true
+```
+
+**What gets synced:**
+
+| Source (system) | Destination (repo) |
+|-----------------|--------------------|
+| `~/.zshrc` | `zsh/.zshrc` |
+| `~/.gitconfig` | `git/.gitconfig` |
+| `~/.config/starship.toml` | `starship/starship.toml` |
+| `~/.config/nvim/` | `nvim/` |
+| `~/.config/sway/` | `sway/` |
+| `~/.config/waybar/` | `waybar/` |
+| `~/.config/wofi/` | `wofi/` |
+| `~/.config/foot/` | `foot/` |
+
+The playbook can be run from any directory inside the repository — it resolves the repo root automatically via `playbook_dir`.
 
 ---
 

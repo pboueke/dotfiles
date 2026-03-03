@@ -63,8 +63,7 @@ mkdir -p ~/Pictures
 | Shortcut | Action | Config line |
 |----------|--------|-------------|
 | `$mod + Return` | Open terminal (foot) | `bindsym $mod+Return exec $term` |
-| `$mod + d` | Open app launcher (wofi run) | `bindsym $mod+d exec wofi --show run` |
-| `$mod + Shift + d` | Open app launcher (wofi drun) | `bindsym $mod+Shift+d exec $menu` |
+| `$mod + d` | Open app launcher (wofi) | `bindsym $mod+d exec $menu` |
 
 ### Windows
 
@@ -189,7 +188,7 @@ Change `-c 000000` to set the lock screen colour, or add `--image ~/Pictures/loc
 ### Idle timeouts (swayidle)
 Edit the `exec swayidle` block in `~/.config/sway/config`:
 ```
-timeout 300  'swaylock ...'      # lock after 5 min
+timeout 300  'swaylock ...'   # lock after 5 min
 timeout 600  'output dpms off'  # screen off after 10 min
 ```
 

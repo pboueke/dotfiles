@@ -107,3 +107,4 @@ alias ssedp1='grim -o eDP-1 ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png'
 alias sshdmia2='grim -o HDMI-A-2 ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png'
 
 eval "$(starship init zsh)"
+
