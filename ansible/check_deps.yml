@@ -16,12 +16,13 @@
     home: "{{ ansible_env.HOME }}"
 
     # PATH used for all binary lookups: user's PATH + common non-standard locations.
-    # This ensures tools in ~/.local/bin, /snap/bin, etc. are found even when
-    # Ansible is not invoked from an interactive shell.
+    # Includes ~/.asdf/bin and ~/.asdf/shims so asdf itself and tools installed
+    # via asdf (e.g. zoxide) are found even outside an interactive shell.
     check_path: >-
-      {{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin:/snap/bin:/usr/games
+      {{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/.asdf/bin:{{ ansible_env.HOME }}/.asdf/shims:/snap/bin:/usr/games
 
-    # Each entry: cmd = binary to look up, pkg = apt package that provides it
+    # Each entry: cmd = binary name, pkg = apt package, group = report section.
+    # Optional hint = install instruction shown when missing (overrides apt install).
     binaries:
       # ── Core ────────────────────────────────────────────────────────────────
       - { cmd: git,           pkg: git,           group: Core }
@@ -29,6 +30,18 @@
       # ── Shell ───────────────────────────────────────────────────────────────
       - { cmd: zsh,           pkg: zsh,           group: Shell }
       - { cmd: starship,      pkg: starship,      group: Shell }
+      - cmd: asdf
+        pkg: asdf
+        group: Shell
+        hint: "https://asdf-vm.com/guide/getting-started.html"
+      - cmd: zoxide
+        pkg: zoxide
+        group: Shell
+        hint: "asdf plugin add zoxide && asdf install zoxide latest"
+      # ── Tools ───────────────────────────────────────────────────────────────
+      - { cmd: rg,            pkg: ripgrep,       group: Tools }
+      - { cmd: vim,           pkg: vim,           group: Tools }
+      - { cmd: bat,           pkg: bat,           group: Tools }
       # ── Build tools (required by telescope-fzf-native) ──────────────────────
       - { cmd: make,          pkg: make,          group: Build }
       - { cmd: gcc,           pkg: gcc,           group: Build }
