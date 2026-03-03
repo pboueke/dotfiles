@@ -41,7 +41,7 @@
       # ── Tools ───────────────────────────────────────────────────────────────
       - { cmd: rg,            pkg: ripgrep,       group: Tools }
       - { cmd: vim,           pkg: vim,           group: Tools }
-      - { cmd: bat,           pkg: bat,           group: Tools }
+      - { cmd: batcat,           pkg: bat,           group: Tools }
       # ── Build tools (required by telescope-fzf-native) ──────────────────────
       - { cmd: make,          pkg: make,          group: Build }
       - { cmd: gcc,           pkg: gcc,           group: Build }
