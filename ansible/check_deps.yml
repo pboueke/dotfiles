@@ -1,0 +1,200 @@
+---
+# check_deps.yml — Verify all dependencies required by this dotfiles repository.
+#
+# Requirements:
+#   sudo apt install ansible
+#
+# Usage (run from anywhere inside the repo):
+#   ansible-playbook ansible/check_deps.yml
+
+- name: Check dotfiles dependencies
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    home: "{{ ansible_env.HOME }}"
+
+    # PATH used for all binary lookups: user's PATH + common non-standard locations.
+    # This ensures tools in ~/.local/bin, /snap/bin, etc. are found even when
+    # Ansible is not invoked from an interactive shell.
+    check_path: >-
+      {{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin:/snap/bin:/usr/games
+
+    # Each entry: cmd = binary to look up, pkg = apt package that provides it
+    binaries:
+      # ── Core ────────────────────────────────────────────────────────────────
+      - { cmd: git,           pkg: git,           group: Core }
+      - { cmd: rsync,         pkg: rsync,         group: Core }
+      # ── Shell ───────────────────────────────────────────────────────────────
+      - { cmd: zsh,           pkg: zsh,           group: Shell }
+      - { cmd: starship,      pkg: starship,      group: Shell }
+      # ── Build tools (required by telescope-fzf-native) ──────────────────────
+      - { cmd: make,          pkg: make,          group: Build }
+      - { cmd: gcc,           pkg: gcc,           group: Build }
+      # ── Neovim extras ───────────────────────────────────────────────────────
+      - { cmd: vifm,          pkg: vifm,          group: Neovim }
+      # ── Sway ecosystem ──────────────────────────────────────────────────────
+      - { cmd: sway,          pkg: sway,          group: Sway }
+      - { cmd: waybar,        pkg: waybar,        group: Sway }
+      - { cmd: wofi,          pkg: wofi,          group: Sway }
+      - { cmd: foot,          pkg: foot,          group: Sway }
+      - { cmd: mako,          pkg: mako,          group: Sway }
+      - { cmd: swaylock,      pkg: swaylock,      group: Sway }
+      - { cmd: swayidle,      pkg: swayidle,      group: Sway }
+      - { cmd: grim,          pkg: grim,          group: Sway }
+      - { cmd: slurp,         pkg: slurp,         group: Sway }
+      - { cmd: wl-copy,       pkg: wl-clipboard,  group: Sway }
+      - { cmd: brightnessctl, pkg: brightnessctl, group: Sway }
+      - { cmd: playerctl,     pkg: playerctl,     group: Sway }
+      - { cmd: wpctl,         pkg: wireplumber,   group: Sway }
+
+  tasks:
+
+    # ── Binary checks ──────────────────────────────────────────────────────────
+    # Use 'command -v' (POSIX shell built-in) instead of 'which' — more portable
+    # and honours the full PATH passed via the environment key below.
+
+    - name: Check required binaries
+      ansible.builtin.shell:
+        cmd: "command -v {{ item.cmd }}"
+      environment:
+        PATH: "{{ check_path }}"
+      loop: "{{ binaries }}"
+      loop_control:
+        label: "{{ item.cmd }}"
+      register: binary_results
+      failed_when: false
+      changed_when: false
+
+    # ── Neovim version ─────────────────────────────────────────────────────────
+
+    - name: Check nvim binary
+      ansible.builtin.shell:
+        cmd: "command -v nvim"
+      environment:
+        PATH: "{{ check_path }}"
+      register: nvim_which
+      failed_when: false
+      changed_when: false
+
+    - name: Get nvim version
+      ansible.builtin.command:
+        cmd: nvim --version
+      register: nvim_version_raw
+      failed_when: false
+      changed_when: false
+      when: nvim_which.rc == 0
+
+    - name: Parse nvim version
+      ansible.builtin.set_fact:
+        nvim_ver: >-
+          {{ nvim_version_raw.stdout_lines[0]
+             | regex_search('\d+\.\d+\.\d+')
+             | default('0.0.0') }}
+      when: nvim_which.rc == 0
+
+    - name: Set nvim_ver when not installed
+      ansible.builtin.set_fact:
+        nvim_ver: "0.0.0"
+      when: nvim_which.rc != 0
+
+    # ── Directory / tool checks ────────────────────────────────────────────────
+
+    - name: Check Oh My Zsh directory
+      ansible.builtin.stat:
+        path: "{{ home }}/.oh-my-zsh"
+      register: omz_stat
+
+    # asdf may be installed in several ways; try command -v with its common
+    # binary locations added to PATH rather than hard-coding a single path.
+    - name: Check asdf
+      ansible.builtin.shell:
+        cmd: "command -v asdf"
+      environment:
+        PATH: "{{ ansible_env.PATH }}:{{ home }}/.asdf/bin:{{ home }}/.local/bin:/snap/bin"
+      register: asdf_check
+      failed_when: false
+      changed_when: false
+
+    - name: Find FiraCode Nerd Font files
+      ansible.builtin.find:
+        paths:
+          - "{{ home }}/.local/share/fonts"
+          - /usr/share/fonts
+          - /usr/local/share/fonts
+        patterns: "*FiraCode*Nerd*"
+        recurse: true
+      register: fira_find
+
+    # ── Build report as a list of strings ─────────────────────────────────────
+    # Using 'debug: var:' on a list renders one element per line in Ansible's
+    # output, which is far more readable than a single escaped 'msg' string.
+
+    - name: Build binary report lines
+      ansible.builtin.set_fact:
+        binary_lines: >-
+          {{ binary_lines | default([])
+             + [('[OK     ]  ' if item.rc == 0 else '[MISSING]  ')
+                + item.item.cmd
+                + ('' if item.rc == 0 else '   ->   apt install ' + item.item.pkg)] }}
+      loop: "{{ binary_results.results }}"
+      loop_control:
+        label: "{{ item.item.cmd }}"
+
+    - name: Set per-item report lines
+      ansible.builtin.set_fact:
+        nvim_line: >-
+          {{ '[MISSING]  nvim               ->  https://github.com/neovim/neovim/releases'
+             if nvim_which.rc != 0
+             else ('[OK     ]  nvim v' + nvim_ver
+                   if nvim_ver is version('0.11', '>=')
+                   else '[OUTDATED]  nvim v' + nvim_ver + '   ->  need 0.11+  https://github.com/neovim/neovim/releases') }}
+        omz_line: >-
+          {{ '[OK     ]  oh-my-zsh' if omz_stat.stat.exists
+             else '[MISSING]  oh-my-zsh   ->  https://ohmyz.sh (install script)' }}
+        asdf_line: >-
+          {{ '[OK     ]  asdf' if asdf_check.rc == 0
+             else '[MISSING]  asdf         ->  https://asdf-vm.com/guide/getting-started.html' }}
+        font_line: >-
+          {{ '[OK     ]  FiraCode Nerd Font' if fira_find.matched > 0
+             else '[MISSING]  FiraCode Nerd Font  ->  https://www.nerdfonts.com/font-downloads' }}
+
+    - name: Count missing or outdated items
+      ansible.builtin.set_fact:
+        total_missing: >-
+          {{ (binary_results.results | selectattr('rc', 'ne', 0) | list | length)
+             + (0 if (nvim_which.rc == 0 and nvim_ver is version('0.11', '>=')) else 1)
+             + (0 if omz_stat.stat.exists else 1)
+             + (0 if asdf_check.rc == 0 else 1)
+             + (0 if fira_find.matched > 0 else 1) }}
+
+    - name: Assemble report
+      ansible.builtin.set_fact:
+        dep_report: >-
+          {{ ['==========================================',
+              ' Dotfiles Dependency Report',
+              '==========================================',
+              '',
+              '--- Binaries ---']
+             + binary_lines
+             + ['',
+                '--- Neovim ---',
+                nvim_line,
+                '',
+                '--- Shell tools ---',
+                omz_line,
+                asdf_line,
+                '',
+                '--- Fonts ---',
+                font_line,
+                '',
+                '==========================================',
+                'All dependencies satisfied.'
+                  if total_missing | int == 0
+                  else (total_missing | string) + ' missing or outdated item(s) found.',
+                '=========================================='] }}
+
+    - name: Print dependency report
+      ansible.builtin.debug:
+        var: dep_report

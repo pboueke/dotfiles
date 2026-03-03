@@ -6,7 +6,7 @@ Personal development environment configuration for Linux (Wayland / Sway).
 
 ```
 dotfiles/
-├── ansible/        # Ansible playbook for automated backup
+├── ansible/        # Ansible playbooks (install, backup, check_deps)
 ├── foot/           # Terminal emulator (foot)
 ├── git/            # Git global configuration
 ├── nvim/           # Neovim (0.11+) Lua configuration
@@ -19,36 +19,6 @@ dotfiles/
 └── LICENSE
 ```
 
-## Installation
-
-Clone and symlink each section:
-
-```bash
-git clone https://github.com/pboueke/dotfiles ~/Repositories/dotfiles
-cd ~/Repositories/dotfiles
-
-# Shell & prompt
-ln -sf "$PWD/zsh/.zshrc"             ~/.zshrc
-ln -sf "$PWD/starship/starship.toml" ~/.config/starship.toml
-
-# Git
-ln -sf "$PWD/git/.gitconfig"         ~/.gitconfig
-
-# Neovim
-ln -sf "$PWD/nvim"                   ~/.config/nvim
-
-# Sway ecosystem
-ln -sf "$PWD/sway"                   ~/.config/sway
-ln -sf "$PWD/waybar"                 ~/.config/waybar
-ln -sf "$PWD/wofi"                   ~/.config/wofi
-ln -sf "$PWD/foot"                   ~/.config/foot
-```
-
-On first Neovim launch, [lazy.nvim](https://github.com/folke/lazy.nvim) will
-bootstrap itself and install all plugins automatically.
-
----
-
 ## Ansible
 
 **Directory:** `ansible/`
@@ -58,6 +28,34 @@ Ansible playbooks for managing this dotfiles repository. Requires only `ansible-
 ```bash
 sudo apt install ansible rsync
 ```
+
+### install.yml
+
+Deploys the dotfiles to the local user. The reverse of `backup.yml`: single files are copied with `ansible.builtin.copy` and directories are synced with `rsync`. Missing parent directories are created automatically.
+
+**Usage:**
+
+```bash
+git clone https://github.com/pboueke/dotfiles ~/Repositories/dotfiles
+ansible-playbook ~/Repositories/dotfiles/ansible/install.yml
+```
+
+**What gets deployed:**
+
+| Repo | System |
+|------|--------|
+| `zsh/.zshrc` | `~/.zshrc` |
+| `git/.gitconfig` | `~/.gitconfig` |
+| `starship/starship.toml` | `~/.config/starship.toml` |
+| `nvim/` | `~/.config/nvim/` |
+| `sway/` | `~/.config/sway/` |
+| `waybar/` | `~/.config/waybar/` |
+| `wofi/` | `~/.config/wofi/` |
+| `foot/` | `~/.config/foot/` |
+
+A report is printed at the end. Files are marked `[COPIED]` (updated), `[OK]` (already current), or `[FAILED]`. Directories are marked `[SYNCED]` (N files updated), `[OK]` (up to date), or `[FAILED]`. Any directories that had to be created are listed in a separate section.
+
+> On first Neovim launch, [lazy.nvim](https://github.com/folke/lazy.nvim) will bootstrap itself and install all plugins automatically.
 
 ### backup.yml
 
@@ -87,6 +85,29 @@ ansible-playbook ansible/backup.yml -e auto_commit=true
 | `~/.config/foot/` | `foot/` |
 
 The playbook can be run from any directory inside the repository — it resolves the repo root automatically via `playbook_dir`.
+
+### check_deps.yml
+
+Checks whether every tool required by this repository is present and (where applicable) meets the minimum version. Produces a report at the end listing OK / MISSING / OUTDATED for each item.
+
+**Usage:**
+
+```bash
+ansible-playbook ansible/check_deps.yml
+```
+
+**What gets checked:**
+
+| Category | Items |
+|----------|-------|
+| Core | `git`, `rsync` |
+| Shell | `zsh`, `starship`, `oh-my-zsh`, `asdf` |
+| Build | `make`, `gcc` (required by telescope-fzf-native) |
+| Neovim | `nvim` ≥ 0.11, `vifm` |
+| Sway ecosystem | `sway`, `waybar`, `wofi`, `foot`, `mako`, `swaylock`, `swayidle`, `grim`, `slurp`, `wl-copy`, `brightnessctl`, `playerctl`, `wpctl` |
+| Fonts | FiraCode Nerd Font Mono |
+
+For each missing item the report includes the `apt` package name or install URL.
 
 ---
 

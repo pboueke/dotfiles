@@ -1,0 +1,176 @@
+---
+# install.yml — Deploy dotfiles from this repository to the local user.
+#
+# The reverse of backup.yml: copies files and rsyncs directories from the
+# repository into the system using the same mechanics.
+#
+# Requirements:
+#   sudo apt install ansible rsync
+#
+# Usage (run from anywhere inside the repo):
+#   ansible-playbook ansible/install.yml
+
+- name: Install dotfiles
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars:
+    home: "{{ ansible_env.HOME }}"
+    repo_dir: "{{ playbook_dir | dirname }}"
+
+    # ── Single files: repo source → system destination ─────────────────────────
+    dotfiles_files:
+      - src: "{{ repo_dir }}/zsh/.zshrc"
+        dest: "{{ home }}/.zshrc"
+      - src: "{{ repo_dir }}/git/.gitconfig"
+        dest: "{{ home }}/.gitconfig"
+      - src: "{{ repo_dir }}/starship/starship.toml"
+        dest: "{{ home }}/.config/starship.toml"
+
+    # ── Directories: rsync'd from repo into system ─────────────────────────────
+    dotfiles_dirs:
+      - src: "{{ repo_dir }}/nvim"
+        dest: "{{ home }}/.config/nvim"
+      - src: "{{ repo_dir }}/sway"
+        dest: "{{ home }}/.config/sway"
+      - src: "{{ repo_dir }}/waybar"
+        dest: "{{ home }}/.config/waybar"
+      - src: "{{ repo_dir }}/wofi"
+        dest: "{{ home }}/.config/wofi"
+      - src: "{{ repo_dir }}/foot"
+        dest: "{{ home }}/.config/foot"
+
+  tasks:
+
+    # ── Single files ──────────────────────────────────────────────────────────
+
+    - name: Ensure parent directories exist for single-file configs
+      ansible.builtin.file:
+        path: "{{ item.dest | dirname }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ dotfiles_files }}"
+      register: file_parent_results
+
+    - name: Copy single-file configs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: preserve
+      loop: "{{ dotfiles_files }}"
+      register: file_copy_results
+      failed_when: false
+
+    # ── Directories ───────────────────────────────────────────────────────────
+
+    - name: Ensure destination directories exist
+      ansible.builtin.file:
+        path: "{{ item.dest }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ dotfiles_dirs }}"
+      register: dir_ensure_results
+
+    - name: Sync directory configs with rsync
+      ansible.builtin.shell:
+        # -a  : archive (recursive, preserve permissions/timestamps/symlinks)
+        # --delete          : remove files in dest that no longer exist in src
+        # --itemize-changes : print one line per changed file (used in report)
+        # --exclude='.git'  : never copy .git internals
+        cmd: >-
+          rsync -a --delete --itemize-changes
+          --exclude='.git'
+          '{{ item.src }}/'
+          '{{ item.dest }}/'
+      loop: "{{ dotfiles_dirs }}"
+      register: rsync_results
+      failed_when: false
+      changed_when: true
+
+    # ── Build report ───────────────────────────────────────────────────────────
+
+    - name: Collect created-directory lines (file parents)
+      ansible.builtin.set_fact:
+        created_dir_lines: >-
+          {{ created_dir_lines | default([])
+             + ['  ' + (item.item.dest | dirname)] }}
+      loop: "{{ file_parent_results.results }}"
+      loop_control:
+        label: "{{ item.item.dest | dirname }}"
+      when: item.changed
+
+    - name: Collect created-directory lines (dir destinations)
+      ansible.builtin.set_fact:
+        created_dir_lines: >-
+          {{ created_dir_lines | default([])
+             + ['  ' + item.item.dest] }}
+      loop: "{{ dir_ensure_results.results }}"
+      loop_control:
+        label: "{{ item.item.dest }}"
+      when: item.changed
+
+    - name: Build single-file report lines
+      ansible.builtin.set_fact:
+        file_lines: >-
+          {{ file_lines | default([])
+             + [('[COPIED ]  ' if item.changed
+                 else ('[OK     ]  ' if not (item.failed | default(false))
+                 else '[FAILED ]  '))
+                + item.item.dest
+                + ('' if not (item.failed | default(false))
+                   else '   ->  ' + (item.msg | default('unknown error')))] }}
+      loop: "{{ file_copy_results.results }}"
+      loop_control:
+        label: "{{ item.item.dest | basename }}"
+
+    - name: Build directory report lines
+      ansible.builtin.set_fact:
+        dir_lines: >-
+          {{ dir_lines | default([])
+             + [('[FAILED ]  ' if item.rc | default(0) != 0
+                 else ('[SYNCED ]  ' if item.stdout_lines | default([]) | length > 0
+                 else '[OK     ]  '))
+                + item.item.dest
+                + ('  (' + (item.stdout_lines | length | string) + ' file(s) updated)'
+                   if item.stdout_lines | default([]) | length > 0 and item.rc | default(0) == 0
+                   else ('  ->  rsync failed (rc=' + (item.rc | string) + ')'
+                         if item.rc | default(0) != 0
+                         else '  (up to date)'))] }}
+      loop: "{{ rsync_results.results }}"
+      loop_control:
+        label: "{{ item.item.dest | basename }}"
+
+    - name: Count failures
+      ansible.builtin.set_fact:
+        failure_count: >-
+          {{ (file_copy_results.results | selectattr('failed', 'equalto', true) | list | length)
+             + (rsync_results.results | selectattr('rc', 'ne', 0) | list | length) }}
+
+    - name: Assemble install report
+      ansible.builtin.set_fact:
+        install_report: >-
+          {{ ['==========================================',
+              ' Dotfiles Install Report',
+              '==========================================',
+              '']
+             + (['--- Directories created ---']
+                + created_dir_lines
+                + ['']
+                if (created_dir_lines | default([]) | length > 0)
+                else [])
+             + ['--- Files ---']
+             + (file_lines | default(['  (none)']))
+             + ['',
+                '--- Directories ---']
+             + (dir_lines | default(['  (none)']))
+             + ['',
+                '==========================================',
+                'All items deployed successfully.'
+                  if failure_count | int == 0
+                  else (failure_count | string) + ' item(s) failed — see [FAILED] entries above.',
+                '=========================================='] }}
+
+    - name: Print install report
+      ansible.builtin.debug:
+        var: install_report
