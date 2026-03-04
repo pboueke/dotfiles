@@ -1,13 +1,13 @@
 return {
-  -- vifm.vim: open the vifm file manager inside Neovim splits
-  -- Requires vifm to be installed on the system: `sudo apt install vifm` / `brew install vifm`
+  -- oil.nvim: edit the filesystem like a buffer
   {
-    "vifm/vifm.vim",
-    cmd = { "EditVifm", "SplitVifm", "VsplitVifm", "TabVifm", "DiffVifm" },
+    "stevearc/oil.nvim",
+    lazy = false,
     keys = {
-      { "<leader>vv", "<cmd>EditVifm<cr>",   desc = "Vifm (current window)" },
-      { "<leader>vs", "<cmd>SplitVifm<cr>",  desc = "Vifm (horizontal split)" },
-      { "<leader>vV", "<cmd>VsplitVifm<cr>", desc = "Vifm (vertical split)" },
+      { "-",           "<cmd>Oil<cr>",                              desc = "Open parent directory" },
+      { "<leader>vv",  "<cmd>Oil<cr>",                              desc = "Oil (current window)" },
+      { "<leader>vV",  function() require("oil").open_float() end,  desc = "Oil (floating window)" },
     },
+    opts = {},
   },
 }

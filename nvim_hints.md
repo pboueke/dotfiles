@@ -11,7 +11,7 @@ Leader key is `<Space>`.
 4. [nvim-cmp (Completion)](#nvim-cmp)
 5. [Comment.nvim](#commentnvim)
 6. [Grapple](#grapple)
-7. [Vifm](#vifm)
+7. [Oil](#oil)
 8. [nvim-surround](#nvim-surround)
 9. [Fugitive](#fugitive)
 10. [Polyglot](#polyglot)
@@ -195,41 +195,40 @@ Lua, Vim, Bash, JavaScript, TypeScript, Python, JSON, YAML, TOML, Markdown, HTML
 
 ---
 
-## Vifm
+## Oil
 
-**What it does:** Opens the `vifm` dual-pane file manager inside Neovim. Files selected in vifm open in Neovim.
-
-**Prerequisite:** Install vifm on your system first:
-```
-sudo apt install vifm       # Debian/Ubuntu
-brew install vifm           # macOS
-```
+**What it does:** Edit the filesystem like a buffer. Navigate directories, rename, move, create, and delete files using normal Neovim motions. No system dependencies required.
 
 ### Key mappings
-| Key          | Action                            |
-|--------------|-----------------------------------|
-| `<leader>vv` | Open vifm in current window       |
-| `<leader>vs` | Open vifm in horizontal split     |
-| `<leader>vV` | Open vifm in vertical split       |
+| Key          | Action                                  |
+|--------------|-----------------------------------------|
+| `-`          | Open parent directory of current file   |
+| `<leader>vv` | Open parent directory (current window)  |
+| `<leader>vV` | Open parent directory (floating window) |
 
-### Commands
-| Command          | Action                            |
-|------------------|-----------------------------------|
-| `:EditVifm`      | Open in current window            |
-| `:SplitVifm`     | Horizontal split                  |
-| `:VsplitVifm`    | Vertical split                    |
-| `:TabVifm`       | New tab                           |
-| `:DiffVifm`      | Open file for diff                |
+### Inside the oil buffer
+| Key         | Action                              |
+|-------------|-------------------------------------|
+| `<Enter>`   | Open file / enter directory         |
+| `-`         | Go up to parent directory           |
+| `_`         | Open the current working directory  |
+| `<C-s>`     | Open file in horizontal split       |
+| `<C-v>`     | Open file in vertical split         |
+| `<C-t>`     | Open file in new tab                |
+| `<C-h>`     | Toggle hidden files                 |
+| `<C-r>`     | Refresh directory listing           |
+| `g?`        | Show help                           |
+| `q`         | Close oil buffer                    |
 
-### Inside vifm
-| Key       | Action                            |
-|-----------|-----------------------------------|
-| `<Enter>` | Open selected file(s) in Neovim   |
-| `h`/`l`   | Navigate up/into directories      |
-| `<Space>` | Select file                       |
-| `yy`      | Yank (copy) file                  |
-| `dd`      | Delete file                       |
-| `q`       | Quit vifm                         |
+### Editing the filesystem
+Oil buffers are editable. To rename, move, create, or delete:
+1. Make changes directly in the buffer (rename a line, delete a line, duplicate a line)
+2. Save with `:w` — oil applies the changes to disk
+
+### Tips
+- Press `-` from any buffer to instantly browse its directory.
+- Deleting a line in the buffer and saving deletes the file from disk.
+- Moving a line between two open oil buffers and saving moves the file.
 
 ---
 
@@ -361,7 +360,7 @@ Visual mode: select lines, then `<leader>hs` / `<leader>hr` to stage/reset just 
 <leader>f*   Telescope finders
 <leader>g*   Git (Fugitive)
 <leader>h*   Git hunks (Gitsigns)
-<leader>v*   Vifm file manager
+<leader>v*   Oil file manager
 <leader>1-4  Grapple file jumps
 <leader>a    Grapple tag/untag
 <leader>e    Grapple tags window

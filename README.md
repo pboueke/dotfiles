@@ -103,7 +103,7 @@ ansible-playbook ansible/check_deps.yml
 | Core | `git`, `rsync` |
 | Shell | `zsh`, `starship`, `oh-my-zsh`, `asdf` |
 | Build | `make`, `gcc` (required by telescope-fzf-native) |
-| Neovim | `nvim` ≥ 0.11, `vifm` |
+| Neovim | `nvim` ≥ 0.11 |
 | Sway ecosystem | `sway`, `waybar`, `wofi`, `foot`, `mako`, `swaylock`, `swayidle`, `grim`, `slurp`, `wl-copy`, `brightnessctl`, `playerctl`, `wpctl` |
 | Fonts | FiraCode Nerd Font Mono |
 
@@ -294,14 +294,14 @@ nvim/
     │   ├── keymaps.lua         leader key (Space) + base window/search mappings
     │   └── lazy.lua            lazy.nvim bootstrap + plugin loader
     └── plugins/
-        ├── colorscheme.lua     tokyonight (night style)
+        ├── colorscheme.lua     catppuccin (mocha)
         ├── telescope.lua       fuzzy finder for files, grep, buffers, help
         ├── treesitter.lua      syntax tree parsing, highlighting, indentation
         ├── lsp.lua             Mason + mason-lspconfig + nvim-lspconfig
         ├── completion.lua      nvim-cmp + LuaSnip + buffer/path/LSP sources
         ├── editor.lua          Comment.nvim + nvim-surround + Grapple
         ├── git.lua             vim-fugitive + gitsigns
-        ├── files.lua           vifm file manager integration
+        ├── files.lua           oil.nvim file manager
         └── syntax.lua          vim-polyglot (syntax for 600+ languages)
 ```
 
@@ -309,7 +309,7 @@ nvim/
 
 | Plugin | Purpose |
 |--------|---------|
-| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Colorscheme |
+| [catppuccin/nvim](https://github.com/catppuccin/nvim) | Colorscheme (mocha) |
 | [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Syntax parsing, highlighting, indentation |
 | [mason.nvim](https://github.com/williamboman/mason.nvim) | LSP / linter / formatter binary installer |
@@ -320,7 +320,7 @@ nvim/
 | [Comment.nvim](https://github.com/numToStr/Comment.nvim) | Toggle comments (`gcc`, `gc`) |
 | [nvim-surround](https://github.com/kylechui/nvim-surround) | Add/change/delete surrounding chars |
 | [grapple.nvim](https://github.com/cbochs/grapple.nvim) | File tagging and instant navigation |
-| [vifm.vim](https://github.com/vifm/vifm.vim) | vifm file manager inside Neovim |
+| [oil.nvim](https://github.com/stevearc/oil.nvim) | Edit the filesystem like a buffer |
 | [vim-fugitive](https://github.com/tpope/vim-fugitive) | Full Git porcelain inside Neovim |
 | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim) | Git diff signs, per-hunk staging, inline blame |
 | [vim-polyglot](https://github.com/sheerun/vim-polyglot) | Syntax + indent for 600+ languages |
