@@ -32,8 +32,8 @@ exec swayidle -w \
     before-sleep 'swaylock -f -c 000000'
 
 ### Cedilla fix (ç instead of ć) ──────────────────────────────────────────────
-env GTK_IM_MODULE cedilla
-env QT_IM_MODULE cedilla
+exec_always export GTK_IM_MODULE=cedilla
+exec_always export QT_IM_MODULE=cedilla
 
 ### Input ─────────────────────────────────────────────────────────────────────
 
