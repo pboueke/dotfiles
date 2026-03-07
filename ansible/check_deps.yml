@@ -29,7 +29,10 @@
       - { cmd: rsync,         pkg: rsync,         group: Core }
       # ── Shell ───────────────────────────────────────────────────────────────
       - { cmd: zsh,           pkg: zsh,           group: Shell }
-      - { cmd: starship,      pkg: starship,      group: Shell }
+      - cmd: starship
+        pkg: starship
+        group: Shell
+        hint: "curl -sS https://starship.rs/install.sh | sh"
       - cmd: asdf
         pkg: asdf
         group: Shell
@@ -52,7 +55,7 @@
       - { cmd: waybar,        pkg: waybar,        group: Sway }
       - { cmd: wofi,          pkg: wofi,          group: Sway }
       - { cmd: foot,          pkg: foot,          group: Sway }
-      - { cmd: mako,          pkg: mako,          group: Sway }
+      - { cmd: mako,          pkg: mako-notifier,  group: Sway }
       - { cmd: swaylock,      pkg: swaylock,      group: Sway }
       - { cmd: swayidle,      pkg: swayidle,      group: Sway }
       - { cmd: grim,          pkg: grim,          group: Sway }
@@ -150,7 +153,7 @@
           {{ binary_lines | default([])
              + [('[OK     ]  ' if item.rc == 0 else '[MISSING]  ')
                 + item.item.cmd
-                + ('' if item.rc == 0 else '   ->   apt install ' + item.item.pkg)] }}
+                + ('' if item.rc == 0 else '   ->   ' + (item.item.hint | default('apt install ' + item.item.pkg)))] }}
       loop: "{{ binary_results.results }}"
       loop_control:
         label: "{{ item.item.cmd }}"
