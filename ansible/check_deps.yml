@@ -64,6 +64,8 @@
       - { cmd: brightnessctl, pkg: brightnessctl, group: Sway }
       - { cmd: playerctl,     pkg: playerctl,     group: Sway }
       - { cmd: wpctl,         pkg: wireplumber,   group: Sway }
+      - { cmd: wdisplays,    pkg: wdisplays,     group: Sway }
+      - { cmd: pavucontrol,  pkg: pavucontrol,   group: Sway }
 
   tasks:
 
