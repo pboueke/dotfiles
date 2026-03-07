@@ -27,6 +27,8 @@
         dest: "{{ home }}/.gitconfig"
       - src: "{{ repo_dir }}/starship/starship.toml"
         dest: "{{ home }}/.config/starship.toml"
+      - src: "{{ repo_dir }}/xcompose/.XCompose"
+        dest: "{{ home }}/.XCompose"
 
     # ── Directories: rsync'd from repo into system ─────────────────────────────
     dotfiles_dirs:

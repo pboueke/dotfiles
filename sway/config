@@ -19,7 +19,9 @@ set $menu wofi --show drun
 # Solid-colour background (replace with: output * bg ~/path/to/wall.jpg fill)
 output * bg #1d2021 solid_color
 
-output HDMI-A-2 mode 2560x1440@60Hz
+output DP-2 mode 1920x1080@60Hz position 532 715 transform 270
+output DP-3 mode 3840x2160@60Hz position 1612 942 scale 1.5
+output HDMI-A-1 mode 1920x1080@60Hz position 1838 2382 transform 180
 
 ### Idle / screen lock ────────────────────────────────────────────────────────
 
@@ -29,12 +31,16 @@ exec swayidle -w \
     resume       'swaymsg "output * dpms on"' \
     before-sleep 'swaylock -f -c 000000'
 
+### Cedilla fix (ç instead of ć) ──────────────────────────────────────────────
+env GTK_IM_MODULE cedilla
+env QT_IM_MODULE cedilla
+
 ### Input ─────────────────────────────────────────────────────────────────────
 
 input type:keyboard {
-    xkb_layout "br"
-    xkb_variant "abnt2"
-    xkb_model "thinkpad"
+    xkb_layout "us"
+    xkb_variant "intl"
+    xkb_model "pc105"
     # xkb_options caps:escape   # uncomment to remap CapsLock → Escape
 }
 

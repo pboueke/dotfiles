@@ -31,6 +31,8 @@
         dest: "{{ repo_dir }}/git/.gitconfig"
       - src: "{{ home }}/.config/starship.toml"
         dest: "{{ repo_dir }}/starship/starship.toml"
+      - src: "{{ home }}/.XCompose"
+        dest: "{{ repo_dir }}/xcompose/.XCompose"
 
     # ── Directories: rsync'd with deletion of removed files ───────────────────
     dotfiles_dirs:
