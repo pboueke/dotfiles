@@ -42,6 +42,8 @@
         dest: "{{ home }}/.config/wofi"
       - src: "{{ repo_dir }}/foot"
         dest: "{{ home }}/.config/foot"
+      - src: "{{ repo_dir }}/environment.d"
+        dest: "{{ home }}/.config/environment.d"
 
   tasks:
 

@@ -70,7 +70,7 @@ ZSH_THEME=""
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git asdf)
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -103,9 +103,21 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
+# Source bash aliases
+[ -f "$HOME/.bash_aliases" ] && source "$HOME/.bash_aliases"
+
 alias ssedp1='grim -o eDP-1 ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png'
 alias sshdmia2='grim -o HDMI-A-2 ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png'
 
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh --cmd cd)"
 
+export PATH="$HOME/.bin:$PATH"
+
+# asdf version manager
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$HOME/.asdf/bin:$ASDF_DATA_DIR/shims:$PATH"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
